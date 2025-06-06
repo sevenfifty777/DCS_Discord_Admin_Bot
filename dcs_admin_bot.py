@@ -42,37 +42,35 @@ logging.info("Test log: Bot started")
 # ---------------------------------------------------
 
 # ------------- CONFIGURATION ---------------
-import os
 
-DCS_SAVED_GAMES = r"C:\Users\tbell\Saved Games\DCS.dcs_serverrelease"
+DCS_SERVER = os.environ["DCS_SERVER"]
+DCS_SAVED_GAMES = os.environ["DCS_SAVED_GAMES"]
 DCS_SCRIPTS = os.path.join(DCS_SAVED_GAMES, "Scripts")
 DCS_DISCORD_BOT = os.path.join(DCS_SCRIPTS, "Discord_Admin_Bot")
 DCS_MISSIONS = os.path.join(DCS_SAVED_GAMES, "Missions")
 DCS_CONFIG = os.path.join(DCS_SAVED_GAMES, "Config")
-DCS_SERVER_BIN = r"C:\Program Files\Eagle Dynamics\DCS World Server\bin"
-DCS_SERVER_SCRIPTS = r"C:\Program Files\Eagle Dynamics\DCS World Server\Scripts"
+DCS_SERVER_BIN = os.path.join(DCS_SERVER, "bin")
+DCS_SERVER_SCRIPTS = os.path.join(DCS_SERVER, "Scripts")
 
-CONFIG_PATH = os.path.join(DCS_SCRIPTS, "dcs_admin_bot_config.txt")
-BANLIST_PATH = os.path.join(DCS_SCRIPTS, "banlist.txt")
-PLAYER_LOG_PATH = os.path.join(DCS_SCRIPTS, "player_log.csv")
-KICKQUEUE_PATH = os.path.join(DCS_SCRIPTS, "kickqueue.txt")
-MISSIONS_PATH = DCS_MISSIONS
-MISSIONQUEUE_PATH = os.path.join(DCS_SCRIPTS, "missionqueue.txt")
-MISSIONCMD_PATH = os.path.join(DCS_SCRIPTS, "missioncmd.txt")
-MISSIONLIST_PATH = os.path.join(DCS_SCRIPTS, "missionlist.txt")
-MISSIONSTATUS_PATH = os.path.join(DCS_SCRIPTS, "missionstatus.txt")
-MISSIONINFO_PATH = os.path.join(DCS_SCRIPTS, "missioninfo.txt")
-FRIENDLYFIRE_PATH = os.path.join(DCS_SCRIPTS, "friendlyfire.txt")
+CONFIG_PATH = os.path.join(DCS_DISCORD_BOT, "dcs_admin_bot_config.txt")
+BANLIST_PATH = os.path.join(DCS_DISCORD_BOT, "banlist.txt")
+PLAYER_LOG_PATH = os.path.join(DCS_DISCORD_BOT, "player_log.csv")
+KICKQUEUE_PATH = os.path.join(DCS_DISCORD_BOT, "kickqueue.txt")
+MISSIONQUEUE_PATH = os.path.join(DCS_DISCORD_BOT, "missionqueue.txt")
+MISSIONCMD_PATH = os.path.join(DCS_DISCORD_BOT, "missioncmd.txt")
+MISSIONLIST_PATH = os.path.join(DCS_DISCORD_BOT, "missionlist.txt")
+MISSIONSTATUS_PATH = os.path.join(DCS_DISCORD_BOT, "missionstatus.txt")
+MISSIONINFO_PATH = os.path.join(DCS_DISCORD_BOT, "missioninfo.txt")
+FRIENDLYFIRE_PATH = os.path.join(DCS_DISCORD_BOT, "friendlyfire.txt")
 
 DCS_SERVER_PATH = os.path.join(DCS_SERVER_BIN, "DCS_server.exe")
 DCS_PROCESS_NAME = "DCS_server.exe"
-SRC_SCRIPT_PATH = os.path.join(DCS_SAVED_GAMES, "Scripts", "MissionScripting.lua")
+SRC_SCRIPT_PATH = os.path.join(DCS_SCRIPTS, "MissionScripting.lua")
 DST_SCRIPT_PATH = os.path.join(DCS_SERVER_SCRIPTS, "MissionScripting.lua")
 FOOTHOLD_SAVES_DIR = os.path.join(DCS_MISSIONS, "Saves")
 
 settings_path = os.path.join(DCS_CONFIG, "serverSettings.lua")
 
-DCS_PATH = DCS_SERVER_BIN
 DCS_UPDATER_EXE = os.path.join(DCS_SERVER_BIN, "DCS_updater.exe")
 
 DCS_CHAT_FILE = os.path.join(DCS_SCRIPTS, "chatcmd.txt")
@@ -191,7 +189,7 @@ async def run_updater_public_silent(interaction: discord.Interaction):
     try:
         updater_proc = subprocess.Popen(
             [DCS_UPDATER_EXE, "update", "--quiet"],
-            cwd=DCS_PATH,
+            cwd=DCS_SERVER_BIN,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE
         )
@@ -1021,7 +1019,7 @@ async def uploadmission(
     if not mizfile.filename.lower().endswith('.miz'):
         await interaction.response.send_message("You must attach a `.miz` file.", ephemeral=True)
         return
-    save_path = os.path.join(MISSIONS_PATH, mizfile.filename)
+    save_path = os.path.join(DCS_MISSIONS, mizfile.filename)
     await mizfile.save(save_path)
     await interaction.response.send_message(f"Mission `{mizfile.filename}` uploaded and added!")
     with open(MISSIONQUEUE_PATH, "a", encoding="utf-8") as f:

@@ -16,6 +16,10 @@ $env:DISCORD_ADMIN_USER_IDS = "123456789012345678,987654321098765432"  # optiona
 # Set admin role names (comma-separated, overrides config file [roles] section)
 $env:DISCORD_ADMIN_ROLE_NAMES = "Server Admins,SuperAdmin"  # <-- Replace with your admin role names
 
+# Set DCS server and saved games paths
+$env:DCS_SERVER = "C:\Program Files\Eagle Dynamics\DCS World Server"   # <-- Replace with your DCS server path
+$env:DCS_SAVED_GAMES = "C:\Users\yourusername\Saved Games\DCS.dcs_serverrelease"  # <-- Replace with your Saved Games path
+
 # (Optional) Set any other environment variables your bot may use
 
 # Start the bot EXE (update the path if needed)
