@@ -20,6 +20,10 @@ $env:DISCORD_ADMIN_ROLE_NAMES = "Server Admins,SuperAdmin"  # <-- Replace with y
 $env:DCS_SERVER = "C:\Program Files\Eagle Dynamics\DCS World Server"   # <-- Replace with your DCS server path
 $env:DCS_SAVED_GAMES = "C:\Users\yourusername\Saved Games\DCS.dcs_serverrelease"  # <-- Replace with your Saved Games path
 
+# Set Simple Radio Standalone server path
+$env:SRS_SERVER = "C:\Program Files\DCS-SimpleRadio-Standalone\SR-Server.exe"
+
+
 # (Optional) Set any other environment variables your bot may use
 
 # Start the bot EXE (update the path if needed)

@@ -62,6 +62,7 @@ MISSIONLIST_PATH = os.path.join(DCS_DISCORD_BOT, "missionlist.txt")
 MISSIONSTATUS_PATH = os.path.join(DCS_DISCORD_BOT, "missionstatus.txt")
 MISSIONINFO_PATH = os.path.join(DCS_DISCORD_BOT, "missioninfo.txt")
 FRIENDLYFIRE_PATH = os.path.join(DCS_DISCORD_BOT, "friendlyfire.txt")
+DCS_CHAT_FILE = os.path.join(DCS_DISCORD_BOT, "chatcmd.txt")
 
 DCS_SERVER_PATH = os.path.join(DCS_SERVER_BIN, "DCS_server.exe")
 DCS_PROCESS_NAME = "DCS_server.exe"
@@ -73,7 +74,10 @@ settings_path = os.path.join(DCS_CONFIG, "serverSettings.lua")
 
 DCS_UPDATER_EXE = os.path.join(DCS_SERVER_BIN, "DCS_updater.exe")
 
-DCS_CHAT_FILE = os.path.join(DCS_SCRIPTS, "chatcmd.txt")
+
+SRS_SERVER = os.environ.get("SRS_SERVER")
+SRS_PROCESS_NAME = "SR-Server.exe"   # The actual process name, adjust if needed
+
 # -------------------------------------------
 
 # ------------- ENVIRONMENT CONFIG ---------------
@@ -397,6 +401,24 @@ def update_missionscripting():
     except Exception as e:
         logging.error(f"Failed to update MissionScripting.lua: {e}")
         return False, f"❌ Failed to update MissionScripting.lua: {e}"
+    
+def wait_for_process_exit(process_name, timeout=60):
+    start = time.time()
+    while time.time() - start < timeout:
+        if not any(p.info['name'] and p.info['name'].lower() == process_name.lower()
+                   for p in psutil.process_iter(['name'])):
+            return True
+        time.sleep(2)
+    return False
+
+def wait_for_process_start(process_name, timeout=30):
+    start = time.time()
+    while time.time() - start < timeout:
+        if any(p.info['name'] and p.info['name'].lower() == process_name.lower()
+               for p in psutil.process_iter(['name'])):
+            return True
+        time.sleep(2)
+    return False
 
 def kill_dcs_server():
     killed = False
@@ -410,14 +432,6 @@ def kill_dcs_server():
                 logging.error(f"Failed to kill: {e}")
     return killed
 
-def wait_for_process_exit(process_name, timeout=60):
-    start = time.time()
-    while time.time() - start < timeout:
-        if not any(p.info['name'] and p.info['name'].lower() == process_name.lower()
-                   for p in psutil.process_iter(['name'])):
-            return True
-        time.sleep(2)
-    return False
 
 def start_dcs_server(dcs_path):
     try:
@@ -427,15 +441,6 @@ def start_dcs_server(dcs_path):
     except Exception as e:
         logging.error(f"Failed to start: {e}")
         return False
-
-def wait_for_process_start(process_name, timeout=30):
-    start = time.time()
-    while time.time() - start < timeout:
-        if any(p.info['name'] and p.info['name'].lower() == process_name.lower()
-               for p in psutil.process_iter(['name'])):
-            return True
-        time.sleep(2)
-    return False
 
 def restart_dcs():
     update_missionscripting()
@@ -460,6 +465,51 @@ def restart_dcs():
     else:
         logging.error("DCS did not start within 30 seconds.")
         return False, "DCS did not start within 30 seconds"
+    
+def kill_srs_server():
+    killed = False
+    for proc in psutil.process_iter(['pid', 'name']):
+        if proc.info['name'] and proc.info['name'].lower() == SRS_PROCESS_NAME.lower():
+            try:
+                logging.info(f"Killing {proc.info['name']} (PID {proc.info['pid']})")
+                proc.kill()
+                killed = True
+            except Exception as e:
+                logging.error(f"Failed to kill SRS: {e}")
+    return killed
+
+def start_srs_server():
+    if not SRS_SERVER or not os.path.exists(SRS_SERVER):
+        logging.error("SRS_SERVER not set or invalid path.")
+        return False
+    try:
+        subprocess.Popen([SRS_SERVER], cwd=os.path.dirname(SRS_SERVER))
+        logging.info(f"Started SRS at {SRS_SERVER}")
+        return True
+    except Exception as e:
+        logging.error(f"Failed to start SRS: {e}")
+        return False
+
+def restart_srs():
+    killed = kill_srs_server()
+    if killed:
+        logging.info("Waiting for SRS to fully exit...")
+        if not wait_for_process_exit(SRS_PROCESS_NAME, timeout=30):
+            logging.error("SRS did not exit after 30 seconds!")
+            return False, "SRS process did not exit in time"
+        time.sleep(2)
+    else:
+        logging.info("No SRS process found to kill, starting a new one.")
+    started = start_srs_server()
+    if not started:
+        return False, "Failed to start SRS process"
+    if wait_for_process_start(SRS_PROCESS_NAME, timeout=20):
+        logging.info("SRS process is now running.")
+        return True, "SRS restarted successfully"
+    else:
+        logging.error("SRS did not start within 20 seconds.")
+        return False, "SRS did not start within 20 seconds"
+
 
 def queue_mission_command(cmd):
     with open(MISSIONCMD_PATH, "w", encoding="utf-8") as f:
@@ -980,6 +1030,7 @@ async def help_cmd(interaction: discord.Interaction):
             "`/restart_dcs_server`	    🔒 Restart DCS sever (Update Missionscripting.lua)\n"
             "`/dcsupdate`	            🔒 Update DCS server\n"
             "`/update_missionscripting`	🔒 Update Missionscripting.lua\n"
+            "`/restart_srs`           restart SRS\n"
         ),
         inline=False
     )
@@ -1356,6 +1407,24 @@ async def dcsupdate(interaction: discord.Interaction):
         await asyncio.wait_for(end_view.acknowledged.wait(), timeout=300)
     except asyncio.TimeoutError:
         await interaction.followup.send("Update acknowledgement timed out.", ephemeral=True)
+        
+@tree.command(name="restart_srs", description="Restart the SRS (SimpleRadio Standalone) server", guild=discord.Object(id=GUILD_ID))
+async def restart_srs_cmd(interaction: discord.Interaction):
+    if not user_is_admin(interaction):
+        await interaction.response.send_message("You do not have permission.", ephemeral=True)
+        return
+    await interaction.response.send_message("Restarting SRS server process...", ephemeral=True)
+    try:
+        success, msg = await asyncio.get_event_loop().run_in_executor(None, restart_srs)
+    except Exception as e:
+        await interaction.followup.send(f"Failed to restart SRS: {e}")
+        logging.error(f"Failed to restart SRS: {e}")
+    else:
+        if success:
+            await interaction.followup.send("✅ SRS server restarted and running.")
+        else:
+            await interaction.followup.send(f"❌ Failed to restart SRS server: {msg}")
+
 
 # ------------- RUN THE BOT --------------
 client.run(TOKEN)
