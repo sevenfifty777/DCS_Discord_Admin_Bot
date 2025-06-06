@@ -1,0 +1,39 @@
+# Ignore Python bytecode and caches
+__pycache__/
+*.pyc
+
+# Ignore logs and runtime files
+*.log
+*.csv
+*.txt
+
+# Ignore local settings, secrets, and private scripts
+.env
+token.txt
+*.key
+*.pem
+
+# Ignore the entire Local/ folder
+Local/
+
+# Ignore zip archives
+*.zip
+
+# Ignore DCS runtime files (specific to your bot)
+chatcmd.txt
+kickqueue.txt
+missionqueue.txt
+missioncmd.txt
+missionlist.txt
+missionstatus.txt
+missioninfo.txt
+banlist.txt
+friendlyfire.txt
+player_log.csv
+
+# Ignore virtual environment
+venv/
+
+# Ignore system-specific files
+.DS_Store
+Thumbs.db
