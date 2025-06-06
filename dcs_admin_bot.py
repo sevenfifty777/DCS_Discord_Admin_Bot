@@ -17,7 +17,7 @@ import psutil
 import shutil
 import requests
 import ast
-
+#test for dve main branch
 # ------------- LOGGING CONFIGURATION ---------------
 #LOG_FILE =r"C:\Users\tbell\Saved Games\DCS.dcs_serverrelease\dcs_admin_bot.log"
 #LOG_FILE = os.path.join(os.path.dirname(__file__), "dcs_admin_bot.log")
