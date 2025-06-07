@@ -22,6 +22,7 @@ $env:DCS_SAVED_GAMES = "C:\Users\yourusername\Saved Games\DCS.dcs_serverrelease"
 
 # Set Simple Radio Standalone server path
 $env:SRS_SERVER = "C:\Program Files\DCS-SimpleRadio-Standalone\SR-Server.exe"
+$env:SRS_SERVER_CFG = "C:\Program Files\DCS-SimpleRadio-Standalone\server.cfg"  # <-- Replace with your SRS server config path
 
 
 # (Optional) Set any other environment variables your bot may use

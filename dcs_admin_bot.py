@@ -76,6 +76,7 @@ DCS_UPDATER_EXE = os.path.join(DCS_SERVER_BIN, "DCS_updater.exe")
 
 
 SRS_SERVER = os.environ.get("SRS_SERVER")
+SRS_SERVER_CFG = os.environ.get("SRS_SERVER_CFG")
 SRS_PROCESS_NAME = "SR-Server.exe"   # The actual process name, adjust if needed
 
 # -------------------------------------------
@@ -482,9 +483,19 @@ def start_srs_server():
     if not SRS_SERVER or not os.path.exists(SRS_SERVER):
         logging.error("SRS_SERVER not set or invalid path.")
         return False
+    # Build the command line with the config file if present
+    srs_cfg = os.environ.get("SRS_SERVER_CFG")
+    cmd = [SRS_SERVER]
+    if srs_cfg and os.path.exists(srs_cfg):
+        cmd.append(f'-cfg="{srs_cfg}"')
     try:
-        subprocess.Popen([SRS_SERVER], cwd=os.path.dirname(SRS_SERVER))
-        logging.info(f"Started SRS at {SRS_SERVER}")
+        # On Windows, launch with CREATE_NEW_CONSOLE to ensure a visible window
+        if os.name == "nt":
+            # creationflags=0x00000010 is CREATE_NEW_CONSOLE
+            subprocess.Popen(cmd, cwd=os.path.dirname(SRS_SERVER), creationflags=0x00000010)
+        else:
+            subprocess.Popen(cmd, cwd=os.path.dirname(SRS_SERVER))
+        logging.info(f"Started SRS at {SRS_SERVER} with config {srs_cfg}")
         return True
     except Exception as e:
         logging.error(f"Failed to start SRS: {e}")
@@ -1030,7 +1041,7 @@ async def help_cmd(interaction: discord.Interaction):
             "`/restart_dcs_server`	    🔒 Restart DCS sever (Update Missionscripting.lua)\n"
             "`/dcsupdate`	            🔒 Update DCS server\n"
             "`/update_missionscripting`	🔒 Update Missionscripting.lua\n"
-            "`/restart_srs`           restart SRS\n"
+            "`/restart_srs`             🔒 restart SRS server\n"
         ),
         inline=False
     )
