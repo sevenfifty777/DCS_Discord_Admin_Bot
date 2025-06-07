@@ -17,6 +17,7 @@ token.txt
 Local/
 build/
 dist/
+release/
 
 # Ignore zip archives
 *.zip

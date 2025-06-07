@@ -52,7 +52,7 @@ DCS_CONFIG = os.path.join(DCS_SAVED_GAMES, "Config")
 DCS_SERVER_BIN = os.path.join(DCS_SERVER, "bin")
 DCS_SERVER_SCRIPTS = os.path.join(DCS_SERVER, "Scripts")
 
-CONFIG_PATH = os.path.join(DCS_DISCORD_BOT, "dcs_admin_bot_config.txt")
+
 BANLIST_PATH = os.path.join(DCS_DISCORD_BOT, "banlist.txt")
 PLAYER_LOG_PATH = os.path.join(DCS_DISCORD_BOT, "player_log.csv")
 KICKQUEUE_PATH = os.path.join(DCS_DISCORD_BOT, "kickqueue.txt")
@@ -66,14 +66,12 @@ DCS_CHAT_FILE = os.path.join(DCS_DISCORD_BOT, "chatcmd.txt")
 
 DCS_SERVER_PATH = os.path.join(DCS_SERVER_BIN, "DCS_server.exe")
 DCS_PROCESS_NAME = "DCS_server.exe"
+DCS_UPDATER_EXE = os.path.join(DCS_SERVER_BIN, "DCS_updater.exe")
 SRC_SCRIPT_PATH = os.path.join(DCS_SCRIPTS, "MissionScripting.lua")
 DST_SCRIPT_PATH = os.path.join(DCS_SERVER_SCRIPTS, "MissionScripting.lua")
 FOOTHOLD_SAVES_DIR = os.path.join(DCS_MISSIONS, "Saves")
 
 settings_path = os.path.join(DCS_CONFIG, "serverSettings.lua")
-
-DCS_UPDATER_EXE = os.path.join(DCS_SERVER_BIN, "DCS_updater.exe")
-
 
 SRS_SERVER = os.environ.get("SRS_SERVER")
 SRS_SERVER_CFG = os.environ.get("SRS_SERVER_CFG")
@@ -289,75 +287,21 @@ def parse_server_settings_lua(settings_path):
     return server_info
 
 def load_config():
-    roles, users = [], []
+    roles = []
+    users = []
     upload_channel_id = os.environ.get("DISCORD_UPLOAD_CHANNEL_ID")
     ffire_alert_channel_id = os.environ.get("DISCORD_FFIRE_ALERT_CHANNEL_ID")
     startup_greeting_channel_id = os.environ.get("DISCORD_STARTUP_GREETING_CHANNEL_ID")
     status_update_channel_id = os.environ.get("DISCORD_STATUS_UPDATE_CHANNEL_ID")
-    # --- NEW: Check for admin user IDs in env var ---
+    # Admin user IDs from env var
     admin_user_ids_env = os.environ.get("DISCORD_ADMIN_USER_IDS")
     if admin_user_ids_env:
-        # Parse comma-separated list, ignore config file for users
         users = [int(uid.strip()) for uid in admin_user_ids_env.split(",") if uid.strip().isdigit()]
-        use_users_from_env = True
-    else:
-        use_users_from_env = False
-    # --- NEW: Check for admin role names in env var ---
+    # Admin role names from env var
     admin_role_names_env = os.environ.get("DISCORD_ADMIN_ROLE_NAMES")
     if admin_role_names_env:
         roles = [role.strip() for role in admin_role_names_env.split(",") if role.strip()]
-        use_roles_from_env = True
-    else:
-        use_roles_from_env = False
-    section = None
-    with open(CONFIG_PATH, "r", encoding="utf-8") as f:
-        for line in f:
-            line = line.strip()
-            if not line or line.startswith("#") or line.startswith(";"):
-                continue
-            if line.lower() == "[roles]":
-                section = "roles"
-            elif line.lower() == "[users]":
-                section = "users"
-            elif line.lower() == "[upload_channel]":
-                section = "upload_channel"
-            elif line.lower() == "[ffire_alert_channel]":
-                section = "ffire_alert_channel"
-            elif line.lower() == "[startup_greeting_channel]":
-                section = "startup_greeting_channel"
-            elif line.lower() == "[status_update_channel]":
-                section = "status_update_channel"
-            elif line.startswith("[") and line.endswith("]"):
-                section = None
-            else:
-                if section == "roles" and not use_roles_from_env:
-                    roles.append(line)
-                elif section == "users" and not use_users_from_env:
-                    try:
-                        users.append(int(line))
-                    except Exception:
-                        pass
-                elif section == "upload_channel" and not upload_channel_id:
-                    try:
-                        upload_channel_id = int(line)
-                    except Exception:
-                        pass
-                elif section == "ffire_alert_channel" and not ffire_alert_channel_id:
-                    try:
-                        ffire_alert_channel_id = int(line)
-                    except Exception:
-                        pass
-                elif section == "startup_greeting_channel" and not startup_greeting_channel_id:
-                    try:
-                        startup_greeting_channel_id = int(line)
-                    except Exception:
-                        pass
-                elif section == "status_update_channel" and not status_update_channel_id:
-                    try:
-                        status_update_channel_id = int(line)
-                    except Exception:
-                        pass
-    # If env vars were set, ensure they are int
+    # Ensure channel IDs are int if set
     if upload_channel_id: upload_channel_id = int(upload_channel_id)
     if ffire_alert_channel_id: ffire_alert_channel_id = int(ffire_alert_channel_id)
     if startup_greeting_channel_id: startup_greeting_channel_id = int(startup_greeting_channel_id)
