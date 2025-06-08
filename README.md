@@ -156,6 +156,7 @@ Use in the in-game chat (coalition or global):
 ### 🛰️ Discord Slash Commands
 
 Use Discord slash commands for bot control. Admin-only commands are restricted via role/user ID config.
+![Discord Slash Commands](images/discord_commands.png)
 
 #### Mission Control
 
