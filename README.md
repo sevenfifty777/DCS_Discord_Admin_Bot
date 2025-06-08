@@ -148,6 +148,9 @@ Use in the in-game chat (coalition or global):
 | `!unban [PlayerName]` | Remove a player from banlist |
 | `!pause` / `!unpause` | Pause/unpause the mission |
 
+### ✅ Notes
+   you can create this file in Discord_Admin_Bot folder manually and add UCID of player to give admin right and use in-game command or use !addadmin command: admin_ucids.txt
+
 ---
 
 ### 🛰️ Discord Slash Commands
