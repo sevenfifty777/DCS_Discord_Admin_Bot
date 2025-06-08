@@ -1,7 +1,7 @@
 # 🛡️ DCS Admin Bot
 
 A full-featured **Discord-based administration bot** and **in-game command monitor** for **DCS World Dedicated Server**. This system links your DCS server with Discord and in-game chat, allowing powerful remote control, player moderation, logging, and mission management.
-The Bot should be installed and configure on you DCS server
+
 ---
 
 ## 🔧 Requirements
