@@ -155,6 +155,8 @@ Use in the in-game chat (coalition or global):
 ### ✅ Notes
    you can create this file in Discord_Admin_Bot folder manually and add UCID of player to give admin right and use in-game command or use !addadmin command: admin_ucids.txt
 
+   When player are banned or unbanned , it update the same list used by Discord bot, so all player are ban/uban both way 
+
 ---
 
 ### 🛰️ Discord Slash Commands
