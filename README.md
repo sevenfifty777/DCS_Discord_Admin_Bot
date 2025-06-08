@@ -1,7 +1,7 @@
 # 🛡️ DCS Admin Bot
 
 A full-featured **Discord-based administration bot** and **in-game command monitor** for **DCS World Dedicated Server**. This system links your DCS server with Discord and in-game chat, allowing powerful remote control, player moderation, logging, and mission management.
-
+The Bot should be installed and configure on you DCS server
 ---
 
 ## 🔧 Requirements
@@ -177,7 +177,7 @@ Use Discord slash commands for bot control. Admin-only commands are restricted v
 - `/unpause` ▶️ Unpause mission
 - `/restartmission` 🔁 Restart current mission
 - `/restart_dcs_server` 🛠️ Kill & restart DCS Server
-- `/dcsupdate` ⬆️ Update DCS via DCS_updater.exe (it should bypass UAC prompt and launch silent update, also MissionScripting.lua)
+- `/dcsupdate` ⬆️ Update DCS via DCS_updater.exe (it should bypass UAC prompt and launch silent update, also MissionScripting.lua is updated before server restart) Not fully tested with real update , No DCS update form ED at the time The bot is released
 - `/update_missionscripting` 📂 Update `MissionScripting.lua` (it try to found MissionScripting.lua (must be desanitized) in Saved     Game\Scripts and copy to Server installation Scripts folder)
 - `/restart_srs` 🔊 Restart SRS server (Bug note: after restart SRS is running as service but no SRS GUI shows up)
 
