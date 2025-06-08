@@ -13,7 +13,7 @@ A full-featured **Discord-based administration bot** and **in-game command monit
 - Discord account with server management rights
 - [DCS SimpleRadio Standalone (SRS)](https://github.com/ciribob/DCS-SimpleRadioStandalone) (optional)
 
-### 📦 Python Dependencies
+### 📦 Python Dependencies (not need if using exe)
 
 Install via:
 
@@ -53,9 +53,13 @@ pip install -r requirements.txt
 Set the following (in the run_dcs_bot.ps1):
 
 ```powershell
-   Set Discord Server, Bot, Channels
+   Set Discord Server, Bot
 $env:DISCORD_BOT_TOKEN = "your_token_here"
 $env:DISCORD_GUILD_ID = "your_guild_id"
+
+   Set Roles, Users
+$env:DISCORD_ADMIN_USER_IDS = ""  # optional with Roles can be empty<-- Replace with your admin Discord user IDs (comma-separated)
+$env:DISCORD_ADMIN_ROLE_NAMES = "Server Admins"  # <-- Replace with your admin role names (comma-separated)
 
    Set channel IDs
 $env:DISCORD_UPLOAD_CHANNEL_ID = "123456789012345678"  # <-- Replace with your upload channel ID
@@ -205,12 +209,13 @@ The bot uses and maintains the following files:
 | `missioncmd.txt` | Discord → DCS command channel |
 | `missioninfo.txt`, `missionstatus.txt`, `missionlist.txt` | Status and mission details |
 | `friendlyfire.txt` | Friendly fire log |
+| `admin_ucids.txt` | Admin list for in-game chat command
 
 ---
 
 ## 📊 Foothold Integration
 
-If you use the [Foothold Campaign](https://github.com/Dzsek/Foothold), you can run `/footholdstats` to generate a leaderboard from any `.lua` save file in the `Missions/Saves` directory.
+If you use the [Foothold Campaign](https://discord.gg/cshgmgXuxE), you can run `/footholdstats` to generate a leaderboard from any `.lua` save file in the `Missions/Saves` directory.
 
 ---
 
