@@ -71,7 +71,7 @@ $env:DISCORD_STATUS_UPDATE_CHANNEL_ID = "123456789012345678"  # <-- Replace with
 $env:DCS_SERVER = "C:\Path\To\DCS-Server"
 $env:DCS_SAVED_GAMES = "C:\Users\<user>\Saved Games\DCS"
 $env:SRS_SERVER = "C:\Path\To\SR-Server.exe"
-$env:SRS_SERVER_CFG = "C:\Path\To\SRS.cfg"
+$env:SRS_SERVER_CFG = "C:\Path\To\server.cfg"
 
    set Path to exe
 Start-Process -FilePath "C:\Users\<user>\Saved Games\DCS\Scripts\Discord_Admin_Bot\DCSAdminBot.exe" -NoNewWindow -Wait
@@ -177,7 +177,7 @@ Use Discord slash commands for bot control. Admin-only commands are restricted v
 - `/restart_dcs_server` 🛠️ Kill & restart DCS Server
 - `/dcsupdate` ⬆️ Update DCS via DCS_updater.exe (it should bypass UAC prompt and launch silent update, also MissionScripting.lua)
 - `/update_missionscripting` 📂 Update `MissionScripting.lua` (it try to found MissionScripting.lua (must be desanitized) in Saved     Game\Scripts and copy to Server installation Scripts folder)
-- `/restart_srs` 🔊 Restart SRS server
+- `/restart_srs` 🔊 Restart SRS server (Bug note: after restart SRS is running as service but no SRS GUI shows up)
 
 #### Players & Logs
 
