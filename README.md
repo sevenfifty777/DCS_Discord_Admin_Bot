@@ -1,103 +1,219 @@
 # 🛡️ DCS Admin Bot
 
-A Discord-based administration bot for **DCS World Dedicated Server**.
+A full-featured **Discord-based administration bot** and **in-game command monitor** for **DCS World Dedicated Server**. This system links your DCS server with Discord and in-game chat, allowing powerful remote control, player moderation, logging, and mission management.
 
-## 📦 Features
+---
 
-- Upload and load missions from Discord
-- Live player stats and killboard from Foothold
-- Ban and kick players via Discord slash commands
-- Update DCS server remotely
-- Realtime server status and alerts
-- Logs and stats parsed from Saved Games
+## 🔧 Requirements
 
-## 🚀 Quick Start
+### ✅ System Requirements
 
-### 1. Install dependencies
+- Windows-based DCS Dedicated Server
+- Python 3.10+ (if using python version)
+- Discord account with server management rights
+- [DCS SimpleRadio Standalone (SRS)](https://github.com/ciribob/DCS-SimpleRadioStandalone) (optional)
+
+### 📦 Python Dependencies
+
+Install via:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 2. Discord Setup
+---
 
-#### Create a Discord Bot
-1. Go to [Discord Developer Portal](https://discord.com/developers/applications)
-2. Click "New Application" and name your bot
-3. Navigate to the "Bot" tab and click "Add Bot"
-4. Under Privileged Gateway Intents, enable:
-   - Server Members Intent
+## 🤖 Discord Bot Setup
+
+1. Visit the [Discord Developer Portal](https://discord.com/developers/applications)
+2. Create a new application and add a bot
+3. Enable intents under the **Bot** tab:
    - Message Content Intent
-5. Copy your bot token (you'll need this later)
+   - Server Members Intent
+4. Under **OAuth2 → URL Generator**:
+   - Scopes: `bot`, `applications.commands`
+   - Bot Permissions: `Send Messages`, `Embed Links`, `Attach Files`, `Manage Messages`, `Use Slash Commands`
+5. Invite the bot to your server using the generated URL
+6. Copy the bot token and your server (guild) ID
 
-#### Add Bot to Your Server
-1. Go to the "OAuth2" → "URL Generator" tab
-2. Select scopes: `bot` and `applications.commands`
-3. Select bot permissions:
-   - Send Messages
-   - Manage Messages
-   - Embed Links
-   - Attach Files
-   - Read Message History
-   - Add Reactions
-   - Use Slash Commands
-4. Copy the generated URL and open it in your browser
-5. Select your Discord server to add the bot
+---
 
-### 3. Environment Configuration
+## ⚙️ Configuration
 
-The bot requires these environment variables:
+### Files Installation
 
-```pwsh
-# Set environment variables in PowerShell
-$env:DISCORD_BOT_TOKEN = "your_bot_token_here"
-$env:DISCORD_GUILD_ID = "your_guild_id_here"
+1. Unzip the last released it should contain 2 folders
+   -  Hooks , ensure discord_admin_allinone_hook.lua is in Hooks folder
+   -  Discord_Admin_Bot folder , where you will found DCSAdminBot.exe and run_dcs_bot.ps1 (those script should work in any place on your server but recommended to keep everything inside this folder where all files and logs will be created/updated)
+2. copy all folder into your C:\Users\<user>\Saved Games\DCS\Scripts
+3. set up all you env. variables
+
+### 🔐 Environment Variables
+
+Set the following (in the run_dcs_bot.ps1):
+
+```powershell
+   Set Discord Server, Bot, Channels
+$env:DISCORD_BOT_TOKEN = "your_token_here"
+$env:DISCORD_GUILD_ID = "your_guild_id"
+
+   Set channel IDs
+$env:DISCORD_UPLOAD_CHANNEL_ID = "123456789012345678"  # <-- Replace with your upload channel ID
+$env:DISCORD_FFIRE_ALERT_CHANNEL_ID = "123456789012345678"  # <-- Replace with your Friendly Fire Alert channel ID
+$env:DISCORD_STARTUP_GREETING_CHANNEL_ID = "123456789012345678"  # <-- Replace with your startup greeting channel ID
+$env:DISCORD_STATUS_UPDATE_CHANNEL_ID = "123456789012345678"  # <-- Replace with your status update channel ID
+
+   Set DCS, SRS path
+$env:DCS_SERVER = "C:\Path\To\DCS-Server"
+$env:DCS_SAVED_GAMES = "C:\Users\<user>\Saved Games\DCS"
+$env:SRS_SERVER = "C:\Path\To\SR-Server.exe"
+$env:SRS_SERVER_CFG = "C:\Path\To\SRS.cfg"
+
+   set Path to exe
+Start-Process -FilePath "C:\Users\<user>\Saved Games\DCS\Scripts\Discord_Admin_Bot\DCSAdminBot.exe" -NoNewWindow -Wait
 ```
 
-To get your Guild ID:
-1. Enable Developer Mode in Discord (Settings → Advanced → Developer Mode)
-2. Right-click on your server name and select "Copy ID"
+---
 
-### 4. Configuration File
+### 📁 Folder Structure
 
-Create or update `Local/Discord_Admin_Bot/dcs_admin_bot_config.txt` with the following format:
+- `Scripts\Discord_Admin_Bot\` –  text command files, & Logs
+- `Scripts\Hooks\` - Lua hook
+- `Missions\` – Mission files and save folders (foothold)
+- `Config\serverSettings.lua` – Server config file
 
-```
-ADMIN_ROLE_NAMES=DCS Admin,Server Admin,Moderator
-ADMIN_USER_IDS=1234567890,0987654321
-UPLOAD_CHANNEL_ID=1234567890123456789
-FFIRE_ALERT_CHANNEL_ID=1234567890123456789
-STARTUP_GREETING_CHANNEL_ID=1234567890123456789
-STATUS_UPDATE_CHANNEL_ID=1234567890123456789
-```
+---
 
-- `ADMIN_ROLE_NAMES`: Discord roles that can use admin commands
-- `ADMIN_USER_IDS`: User IDs that can use admin commands regardless of roles
-- `UPLOAD_CHANNEL_ID`: Channel for mission uploads
-- `FFIRE_ALERT_CHANNEL_ID`: Channel for friendly fire alerts
-- `STARTUP_GREETING_CHANNEL_ID`: Channel for startup messages
-- `STATUS_UPDATE_CHANNEL_ID`: Channel for regular status updates
+## 🚀 Launching
 
-### 5. DCS Server Configuration
+### PowerShell
 
-Update paths in `dcs_admin_bot.py` to match your DCS server installation:
+You can use the template script:
 
-```python
-DCS_SAVED_GAMES = r"C:\Users\username\Saved Games\DCS.dcs_serverrelease"
-DCS_SCRIPTS = os.path.join(DCS_SAVED_GAMES, "Scripts")
-DCS_SERVER_BIN = r"C:\Program Files\Eagle Dynamics\DCS World Server\bin"
+```powershell
+.\run_dcs_bot.ps1
 ```
 
-### 6. Launch the Bot
+This script sets up environment variables and runs the bot in the background (no window pop-up if configured via Task Scheduler).
 
-Run the bot with:
+---
 
-```pwsh
-python dcs_admin_bot.py
-```
 
-For persistent operation, you can use the included PowerShell script:
+## 🗓️ Run on Startup via Task Scheduler
 
-```pwsh
-.\Local\run_dcs_bot.ps1
-```
+To launch the bot automatically when the server starts:
+
+### 🧾 Steps
+
+1. Open **Task Scheduler** (`taskschd.msc`)
+2. Click **Create Task**
+3. Under **General** tab:
+   - Name: `DCS Admin Bot`
+   - Select **Run whether user is logged on or not**
+   - Check **Run with highest privileges**
+4. Under **Triggers** tab:
+   - Click **New**
+   - Begin the task: `At startup`
+   - Click **OK**
+5. Under **Actions** tab:
+   - Click **New**
+   - Action: `Start a program`
+   - Program/script: `powershell.exe`
+   - Add arguments (replace path as needed):
+
+     ```text
+     -WindowStyle Hidden -ExecutionPolicy Bypass -File "C:\Users\USERNAME\Saved Games\DCS.dcs_serverrelease\run_dcs_bot.ps1"
+     ```
+
+6. Click **OK**, enter Server Admin credentials when prompted.
+
+### ✅ Notes
+
+- Make sure `run_dcs_bot.ps1` is present at the specified path.
+- The script will run silently without opening a PowerShell window.
+- You can confirm operation via `dcs_admin_bot.log` or the bot’s presence in Discord.
+
+
+## 💬 Available Commands
+
+### 🎮 In-Game Chat Commands (for Admins)
+
+Use in the in-game chat (coalition or global):
+
+| Command | Description |
+|--------|-------------|
+| `!addadmin [PlayerName]` | Promote a connected player to admin |
+| `!removeadmin [PlayerName]` | Remove admin rights from a connected player |
+| `!ban [PlayerName] duration reason` | Ban player (duration in seconds, `0` = permanent) |
+| `!unban [PlayerName]` | Remove a player from banlist |
+| `!pause` / `!unpause` | Pause/unpause the mission |
+
+---
+
+### 🛰️ Discord Slash Commands
+
+Use Discord slash commands for bot control. Admin-only commands are restricted via role/user ID config.
+
+#### Mission Control
+
+- `/uploadmission` 📤 Upload a `.miz` file to server (requires upload channel)
+- `/listmissions` 📜 List missions on server
+- `/loadmission number` 🔄 Load mission by number
+- `/missioninfo` ℹ️ Show current mission status
+
+#### Server Control
+
+- `/pause` ⏸️ Pause mission
+- `/unpause` ▶️ Unpause mission
+- `/restartmission` 🔁 Restart current mission
+- `/restart_dcs_server` 🛠️ Kill & restart DCS Server
+- `/dcsupdate` ⬆️ Update DCS via DCS_updater.exe (it should bypass UAC prompt and launch silent update, also MissionScripting.lua)
+- `/update_missionscripting` 📂 Update `MissionScripting.lua` (it try to found MissionScripting.lua (must be desanitized) in Saved     Game\Scripts and copy to Server installation Scripts folder)
+- `/restart_srs` 🔊 Restart SRS server
+
+#### Players & Logs
+
+- `/dcsplayers` 🧑‍✈️ Recent unique players
+- `/dcsconnections` 🔌 Show recent player connections
+- `/dcsban player duration reason` 🚫 Ban a player
+- `/dcsunban player` ✅ Unban a player
+- `/dcsbanlist` 📋 View active banlist
+- `/playerstats` 📈 Detailed player session stats
+- `/footholdstats` 🪖 Extract killboard stats from Foothold save
+
+#### Status & Help
+
+- `/status` 📡 Live server & mission status
+- `/help` 📘 List all bot commands
+
+---
+
+## 📁 Files Generated
+
+The bot uses and maintains the following files:
+
+| File | Purpose |
+|------|---------|
+| `player_log.csv` | Logs player joins/leaves and events |
+| `banlist.txt` | Persistent bans |
+| `kickqueue.txt` | Temporary kicks (via Discord) |
+| `chatcmd.txt` | Queue for in-game bot chat messages |
+| `missioncmd.txt` | Discord → DCS command channel |
+| `missioninfo.txt`, `missionstatus.txt`, `missionlist.txt` | Status and mission details |
+| `friendlyfire.txt` | Friendly fire log |
+
+---
+
+## 📊 Foothold Integration
+
+If you use the [Foothold Campaign](https://github.com/Dzsek/Foothold), you can run `/footholdstats` to generate a leaderboard from any `.lua` save file in the `Missions/Saves` directory.
+
+---
+
+## 🧪 Advanced Features
+
+- Friendly fire watcher with Discord alerts (not tested)
+- Auto-update mission list (it does NOT update serverSettings so list is not persitente after restart of DCS)
+- UCID-based player management
+- Supports both role-based and user ID-based admin permission checks
+- DCS server auto-restart on update (possible bug)
