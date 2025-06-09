@@ -891,8 +891,9 @@ def format_wind(w):
     s = w.get("speed", "?")
     return f"{d}° / {s} kts"
 
-def build_rich_status_embed(meta, players_connected, server_settings, show_password=False):
-    server_settings = parse_server_settings_lua(str(settings_path))
+def build_rich_status_embed(meta, players_connected, server_settings=None, show_password=False):
+    if server_settings is None:
+        server_settings = parse_server_settings_lua(str(settings_path))
     server_ip = get_public_ip()
     embed = discord.Embed(
         title=server_settings['name'],
