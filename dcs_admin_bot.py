@@ -232,6 +232,8 @@ def pad(val, width):
     return str(val)[:width].ljust(width)
 
 def list_foothold_lua_files(saves_folder):
+    if not os.path.isdir(saves_folder):
+        return []
     return [f for f in os.listdir(saves_folder) if f.endswith('.lua')]
 
 def extract_player_stats(lua_text):
