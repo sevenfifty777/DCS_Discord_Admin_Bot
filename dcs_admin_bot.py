@@ -75,7 +75,9 @@ settings_path = os.path.join(DCS_CONFIG, "serverSettings.lua")
 
 SRS_SERVER = os.environ.get("SRS_SERVER")
 SRS_SERVER_CFG = os.environ.get("SRS_SERVER_CFG")
-SRS_PROCESS_NAME = "SR-Server.exe"   # The actual process name, adjust if needed
+SRS_PROCESS_NAMES = "SRS-Server.exe"   # The actual process name, adjust if needed
+
+
 
 # -------------------------------------------
 
@@ -201,7 +203,7 @@ async def run_updater_public_silent(interaction: discord.Interaction):
         logging.error(f"Failed to start DCS_updater.exe: {e}")
         return
 
-    await interaction.followup.send("🟡 DCS Updater is running. Progress messages will appear below.")
+    await interaction.followup.send("🟡 DCS Updater is running. Monitoring output...", ephemeral=True)
     while True:
         line = updater_proc.stdout.readline()
         if not line:
@@ -213,20 +215,29 @@ async def run_updater_public_silent(interaction: discord.Interaction):
     result_msg = "🟢 DCS Updater finished." if updater_proc.returncode == 0 else f"🔴 DCS Updater failed (exit {updater_proc.returncode})."
     await interaction.followup.send(result_msg)
 
+    # ✅ Add safe delay after updater exits
+    await asyncio.sleep(7)
+
+    # 🕵️‍♂️ Check if DCS auto-restarted (some updates do this silently)
+    if wait_for_process_start(DCS_PROCESS_NAME, timeout=10):
+        await interaction.followup.send("⚠️ DCS server appears to have auto-restarted by the updater. Skipping manual restart.", ephemeral=True)
+        return
+
     if updater_proc.returncode == 0:
-        await interaction.followup.send("✅ Update complete. Patching MissionScripting.lua and restarting DCS server...", ephemeral=True)
+        await interaction.followup.send("✅ Update complete. Restarting DCS server with patched MissionScripting.lua...", ephemeral=True)
         try:
             success, msg = await asyncio.get_event_loop().run_in_executor(None, restart_dcs)
         except Exception as e:
-            await interaction.followup.send(f"Failed to restart DCS after update: {e}")
+            await interaction.followup.send(f"❌ Failed to restart DCS after update: {e}", ephemeral=True)
             logging.error(f"Failed to restart DCS after update: {e}")
         else:
             if success:
-                await interaction.followup.send("✅ DCS server restarted and running (MissionScripting.lua patched).")
+                await interaction.followup.send("✅ DCS server restarted and running (MissionScripting.lua patched).", ephemeral=True)
             else:
-                await interaction.followup.send(f"❌ Failed to restart DCS server after update: {msg}")
+                await interaction.followup.send(f"❌ Failed to restart DCS server after update: {msg}", ephemeral=True)
     else:
         await interaction.followup.send("⚠️ DCS server not restarted due to update failure.", ephemeral=True)
+
 
 def pad(val, width):
     return str(val)[:width].ljust(width)
@@ -412,11 +423,15 @@ def restart_dcs():
     else:
         logging.error("DCS did not start within 30 seconds.")
         return False, "DCS did not start within 30 seconds"
-    
+
+def process_name_matches(name, candidates):
+    return name and any(name.lower() == c.lower() for c in candidates)
+
+   
 def kill_srs_server():
     killed = False
     for proc in psutil.process_iter(['pid', 'name']):
-        if proc.info['name'] and proc.info['name'].lower() == SRS_PROCESS_NAME.lower():
+        if process_name_matches(proc.info['name'], SRS_PROCESS_NAMES):
             try:
                 logging.info(f"Killing {proc.info['name']} (PID {proc.info['pid']})")
                 proc.kill()
@@ -451,7 +466,7 @@ def restart_srs():
     killed = kill_srs_server()
     if killed:
         logging.info("Waiting for SRS to fully exit...")
-        if not wait_for_process_exit(SRS_PROCESS_NAME, timeout=30):
+        if not wait_for_process_exit(SRS_PROCESS_NAMES, timeout=30):
             logging.error("SRS did not exit after 30 seconds!")
             return False, "SRS process did not exit in time"
         time.sleep(2)
@@ -460,7 +475,7 @@ def restart_srs():
     started = start_srs_server()
     if not started:
         return False, "Failed to start SRS process"
-    if wait_for_process_start(SRS_PROCESS_NAME, timeout=20):
+    if wait_for_process_start(SRS_PROCESS_NAMES, timeout=20):
         logging.info("SRS process is now running.")
         return True, "SRS restarted successfully"
     else:
